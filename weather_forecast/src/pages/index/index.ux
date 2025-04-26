@@ -1,0 +1,207 @@
+<template>
+  <!-- 确保所有内容都在这一个根 div 内 -->
+  <div class="page">
+    <div class="bg-image"></div>
+    <!-- 顶部信息 -->
+    <div class="header">
+      <text class="current-time">{{ currentTime }}</text>
+      <text class="forecast-title">{{ forecastTitle }}</text>
+    </div>
+
+    <!-- 天气预报列表 -->
+    <list class="weather-list">
+      <list-item type="forecast" for="{{ weatherList }}" class="list-item">
+        <div class="list-item-container" onclick="toListPage($item)">
+          <!-- 左侧列：包含日期和温度 -->
+          <div class="left-column">
+            <text class="data">{{ $item.day }}</text>
+            <text class="temperature">{{ $item.tempHigh }}°/{{ $item.tempLow }}°</text>
+          </div>
+          <!-- 右侧列：包含天气图标 -->
+          <div class="right-column">
+            <image class="weather-icon" src="{{ $item.icon }}"></image>
+          </div>
+        </div> <!-- list-item-container 的结束标签 -->
+      </list-item>
+    </list>
+  </div> <!-- page (根元素) 的结束标签 -->
+</template>
+
+
+
+<style>
+  /* 基础样式 */
+.html, .body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+  .page {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  flex-direction: column;
+  padding: 0; /* 尝试添加 */
+  margin: 0;  /* 尝试添加 */
+}
+
+.bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url('/common/bak.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  /* background-position: top center; */
+  opacity: 0.6;
+  z-index: 0;
+}
+  .list-item-container {
+    display: flex;
+    flex-direction: row; /* 水平排列 */
+    justify-content: space-between; /* 两端对齐 */
+    align-items: center; /* 交叉轴（垂直）居中 */
+    padding: 20px 15px; /* 增加上下内边距，调整整体大小感 */
+    border-bottom: 1px solid #eee;
+    width: 100%;
+}
+
+  .left-column {
+  /* 允许该列根据需要增长 */
+  flex-grow: 1;
+  /* 移除 flex: 1 */
+  display: flex;
+  /* 根据需要对齐文本 */
+  flex-direction: column; /* 内部元素垂直排列 */
+  justify-content: center; /* 使日期和温度作为一个整体在垂直方向居中 */
+  align-items: flex-start; /* 使日期和温度文本左对齐 */
+  padding: 0px 40px;
+}
+
+.right-column {
+    flex: 0 0 80px; /* 设置一个基础宽度，例如80px，不伸缩 */
+    display: flex;
+    justify-content: center; /* 水平居中内部元素 */
+    align-items: center; /* 垂直居中内部元素 */
+    padding: 0px 35px; /* 列表项内部左右边距 */
+    /* border: 1px solid green; */ /* 调试用 */
+}
+
+
+  .text {
+    color: #ffffff; /* 默认文字颜色为白色 */ 
+  }
+
+  /* 顶部信息样式 */
+  .header {
+    width: 100%;
+    flex-direction: column; /* 竖向排列 */
+    align-items: center; /* 水平居中 */
+    /* margin-bottom: 25px; */
+    z-index: 1;
+  }
+
+  .current-time {
+    font-size: 36px;
+    margin-bottom: 5px;
+  }
+
+  .forecast-title {
+    font-size: 32px;
+    color: #eeeeee; 
+  }
+
+  /* 天气列表样式 */
+  .weather-list {
+    flex: 1; /* 占据剩余空间 */
+    width: 100%;
+    z-index: 1;
+  }
+
+  .list-item {
+    width: 100%;
+    height: 150px; /* 列表项高度 */
+    margin-bottom: 15px; /* 列表项间距 */
+  }
+
+.data {
+  font-size: 40px; /* 调整字体大小 */
+  color: #ffffff; /* 确保颜色 */
+  margin-bottom: 5px; /* 添加底部边距，与温度分隔开 */
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.temperature {
+  font-size: 40px; /* 调整字体大小 */
+  color: #ffffff; /* 可以设置不同颜色 */
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+  .weather-icon {
+    width: 90px; /* 图标宽度 */
+    height: 90px; /* 图标高度 */
+  }
+</style>
+
+<script>
+  import router from '@system.router'
+  // import fetch from '@system.fetch';
+  export default {
+    private: {
+      currentTime: '12:00', // 初始时间
+      forecastTitle: '未来天气',
+      // 编造的天气数据列表 [T35](2) [T38](3)
+      weatherList: [
+        { day: '今天', tempHigh: '23', tempLow: '9', icon: '/common/cloudy-light.png' }, 
+        { day: '明天', tempHigh: '22', tempLow: '7', icon: '/common/moderate rain.png' }, 
+        { day: '周三', tempHigh: '24', tempLow: '10', icon: '/common/Sand blowing.png' }, 
+        { day: '周四', tempHigh: '25', tempLow: '10', icon: '/common/cloudy-light.png' },
+        { day: '周五', tempHigh: '26', tempLow: '12', icon: '/common/sunny-light.png' },
+        { day: '周六', tempHigh: '24', tempLow: '11', icon: '/common/sunny-light.png' },
+        { day: '周日', tempHigh: '3', tempLow: '-8', icon: '/common/snow.png' } // 添加更多数据以测试滑动
+      ]
+    },
+    // onReady() {
+    //   let key = '<你的key>';
+    //   // location，这里使用的是武汉的code
+    //   // 更多的location code可以查看：https://github.com/qwd/LocationList
+    //   fetch.fetch({
+    //     url: `https://devapi.qweather.com/v7/weather/now?location=101200101&key=${key}`
+    //   }).then(res => {
+    //     const result = res.data;
+    //     console.log('返回的数据:', JSON.stringify(result.data, null, 2));
+    //     this.weather = result.data.now;
+    //   }).catch(error => {
+    //     console.log(`数据请求失败:`, error);
+    //   })
+    // },
+    onInit() {
+      setInterval(() => {
+        const now = new Date();
+        const hours = String(now.getHours()).padStart(2, '0');
+        const minutes = String(now.getMinutes()).padStart(2, '0');
+        this.currentTime = `${hours}:${minutes}`;
+      }, 60000); // 每分钟更新一次
+    },
+    toListPage(itemData) { // 修改这里，添加参数 itemData
+    console.log("Navigating to detail with data:", JSON.stringify(itemData)); // 调试日志
+    router.push({
+      uri: '/pages/detail',
+      params: {
+        day: itemData.day,
+        tempHigh: itemData.tempHigh,
+        tempLow: itemData.tempLow,
+        icon: itemData.icon
+      }
+    });
+  }
+  }
+  
+</script>

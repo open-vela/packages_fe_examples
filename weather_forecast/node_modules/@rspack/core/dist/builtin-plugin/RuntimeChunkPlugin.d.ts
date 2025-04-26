@@ -1,0 +1,11 @@
+import { BuiltinPluginName, type RawRuntimeChunkOptions } from "@rspack/binding";
+export type RuntimeChunkPluginOptions = RawRuntimeChunkOptions;
+export declare const RuntimeChunkPlugin: {
+    new (options: RawRuntimeChunkOptions): {
+        name: BuiltinPluginName;
+        _args: [options: RawRuntimeChunkOptions];
+        affectedHooks: "done" | "make" | "compile" | "emit" | "afterEmit" | "invalid" | "thisCompilation" | "afterDone" | "compilation" | "normalModuleFactory" | "contextModuleFactory" | "initialize" | "shouldEmit" | "infrastructureLog" | "beforeRun" | "run" | "assetEmitted" | "failed" | "shutdown" | "watchRun" | "watchClose" | "environment" | "afterEnvironment" | "afterPlugins" | "afterResolvers" | "beforeCompile" | "afterCompile" | "finishMake" | "entryOption" | "additionalPass" | undefined;
+        raw(compiler: import("..").Compiler): import("@rspack/binding").BuiltinPlugin;
+        apply(compiler: import("..").Compiler): void;
+    };
+};

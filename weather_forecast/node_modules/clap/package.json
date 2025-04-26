@@ -1,0 +1,55 @@
+{
+  "name": "clap",
+  "version": "3.1.1",
+  "description": "Command line argument parser",
+  "author": "Roman Dvornov <rdvornov@gmail.com>",
+  "repository": "lahmatiy/clap",
+  "license": "MIT",
+  "keywords": [
+    "cli",
+    "command",
+    "option",
+    "argument",
+    "completion"
+  ],
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": {
+      "import": "./lib/index.js",
+      "require": "./cjs/index.cjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "cjs",
+    "lib"
+  ],
+  "engines": {
+    "node": "^12.20.0 || ^14.13.0 || >=15.0.0",
+    "npm": ">=7.0.0"
+  },
+  "dependencies": {
+    "ansi-colors": "^4.1.1"
+  },
+  "devDependencies": {
+    "c8": "^7.11.0",
+    "eslint": "^8.8.0",
+    "mocha": "^9.2.0",
+    "rollup": "^2.67.1",
+    "test-console": "^2.0.0"
+  },
+  "scripts": {
+    "lint": "eslint lib test",
+    "lint-and-test": "npm run lint && npm test",
+    "test": "mocha --reporter ${REPORTER:-progress}",
+    "test:cjs": "mocha cjs-test --reporter ${REPORTER:-progress}",
+    "watch": "npm run build -- --watch",
+    "build": "npm run esm-to-cjs --",
+    "build-and-test": "npm run esm-to-cjs-and-test",
+    "esm-to-cjs": "node scripts/esm-to-cjs",
+    "esm-to-cjs-and-test": "npm run esm-to-cjs && npm run test:cjs",
+    "coverage": "c8 --reporter=lcovonly npm test",
+    "prepublishOnly": "npm run lint-and-test && npm run build-and-test"
+  }
+}
