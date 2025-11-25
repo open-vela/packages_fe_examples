@@ -1,0 +1,391 @@
+<template>
+  <div class="page">
+    <div class="header">
+      <text class="back" onclick="goBack">返回</text>
+      <text class="title">设备详情</text>
+    </div>
+    <list class="content">
+      <list-item type="main" class="li">
+        <div class="main">
+          <image class="icon" src="{{ icon }}"></image>
+          <div class="info">
+            <text class="name" lines="2">{{ name }}</text>
+            <text class="status">{{ statusText }}</text>
+          </div>
+        </div>
+      </list-item>
+      <list-item type="switch" class="li">
+        <div class="switch-row">
+          <text class="label">开关</text>
+          <div class="switch" onclick="toggle">
+            <div class="knob" style="left: {{ device.status ? 42 : 2 }}px"></div>
+            <text class="switch-l" style="color: {{ device.status ? '#9ca3af' : '#111827' }}">关</text>
+            <text class="switch-r" style="color: {{ device.status ? '#111827' : '#9ca3af' }}">开</text>
+          </div>
+        </div>
+      </list-item>
+      <list-item type="value" class="li">
+        <div class="control">
+          <text class="label">{{ getLabel(type) }}</text>
+          <div class="ops">
+            <div class="btn" onclick="decValue"><text class="btn-text">-</text></div>
+            <text class="val">{{ getDisplayValue(device) }}</text>
+            <div class="btn" onclick="incValue"><text class="btn-text">+</text></div>
+          </div>
+        </div>
+      </list-item>
+      <list-item type="modes" class="li" if="{{ type === 'light' }}">
+        <div class="modes">
+          <text class="section">模式</text>
+          <div class="chips">
+            <div class="chip" for="{{(i,m) in lightModes}}" onclick="setMode(m)">
+              <text class="chip-text" style="color: {{ device.mode === m.name ? '#111827' : '#6b7280' }}">{{ m.name }}</text>
+            </div>
+          </div>
+        </div>
+      </list-item>
+      <list-item type="ac" class="li" if="{{ type === 'ac' }}">
+        <div class="modes">
+          <text class="section">模式</text>
+          <div class="chips">
+            <div class="chip" for="{{(i,m) in acModes}}" onclick="setMode(m)">
+              <text class="chip-text" style="color: {{ device.mode === m.name ? '#111827' : '#6b7280' }}">{{ m.name }}</text>
+            </div>
+          </div>
+          <text class="section">风速</text>
+          <div class="chips">
+            <div class="chip" for="{{(i,f) in fanSpeeds}}" onclick="setFan(f)">
+              <text class="chip-text" style="color: {{ device.fan === f ? '#111827' : '#6b7280' }}">{{ f }}</text>
+            </div>
+          </div>
+        </div>
+      </list-item>
+      <list-item type="tv" class="li" if="{{ type === 'tv' }}">
+        <div class="modes">
+          <text class="section">常用频道</text>
+          <div class="grid">
+            <div class="grid-item" for="{{(i,c) in tvFav}}" onclick="chooseChannel(c)">
+              <text class="grid-text" style="color: {{ device.channel === c.num ? '#111827' : '#6b7280' }}">{{ c.name }}</text>
+            </div>
+          </div>
+        </div>
+      </list-item>
+      <list-item type="purifier" class="li" if="{{ type === 'purifier' }}">
+        <div class="modes">
+          <text class="section">模式</text>
+          <div class="chips">
+            <div class="chip" for="{{(i,m) in purifierModes}}" onclick="setMode(m)">
+              <text class="chip-text" style="color: {{ device.mode === m.name ? '#111827' : '#6b7280' }}">{{ m.name }}</text>
+            </div>
+          </div>
+        </div>
+      </list-item>
+    </list>
+  </div>
+</template>
+
+<script>
+import router from "@system.router";
+import store from "../../common/store.js";
+
+export default {
+  data: {
+    id: 0,
+    name: '',
+    type: '',
+    icon: '',
+    device: {},
+    statusText: '',
+    lightModes: [
+      { name: '夜灯', value: 15 },
+      { name: '休闲', value: 35 },
+      { name: '阅读', value: 60 },
+      { name: '影视', value: 30 },
+      { name: '工作', value: 80 },
+      { name: '全亮', value: 100 }
+    ],
+    acModes: [
+      { name: '自动', value: 24 },
+      { name: '制冷', value: 24 },
+      { name: '制热', value: 26 },
+      { name: '送风', value: 24 },
+      { name: '除湿', value: 24 },
+      { name: '节能', value: 25 }
+    ],
+    fanSpeeds: ['低','中','高'],
+    tvFav: [
+      { name: 'CCTV-1', num: 1 },
+      { name: 'CCTV-5', num: 5 },
+      { name: '湖南卫视', num: 36 },
+      { name: '东方卫视', num: 33 },
+      { name: '浙江卫视', num: 7 },
+      { name: '北京卫视', num: 10 }
+    ],
+    purifierModes: [
+      { name: '自动', value: 40 },
+      { name: '静音', value: 20 },
+      { name: '强力', value: 80 },
+      { name: '极速', value: 100 }
+    ]
+  },
+  onInit(options) {
+    this.id = options && options.id ? Number(options.id) : 0;
+    const d = store.getDeviceById(this.id);
+    if (!d) {
+      this.name = '未知设备';
+      return;
+    }
+    this.type = d.type;
+    this.name = d.name;
+    this.icon = this.getIcon(d.type);
+    this.device = { ...d };
+    this.statusText = this.getStatusText(this.device);
+  },
+  refresh() {
+    const d = store.getDeviceById(this.id);
+    this.device = { ...d };
+    this.statusText = this.getStatusText(this.device);
+  },
+  toggle() {
+    store.updateDevice(this.id, { status: !this.device.status });
+    this.refresh();
+  },
+  incValue() {
+    const d = this.device;
+    if (d.type === 'light' || d.type === 'purifier') {
+      const v = Math.min(100, (d.value || 0) + 5);
+      store.updateDevice(this.id, { value: v, status: true });
+    } else if (d.type === 'ac') {
+      const v = Math.min(30, Math.max(16, (d.value || 16) + 1));
+      store.updateDevice(this.id, { value: v, status: true });
+    } else if (d.type === 'tv') {
+      const c = Math.min(99, Math.max(1, (d.channel || 1) + 1));
+      store.updateDevice(this.id, { channel: c, status: true });
+    }
+    this.refresh();
+  },
+  decValue() {
+    const d = this.device;
+    if (d.type === 'light' || d.type === 'purifier') {
+      const v = Math.max(0, (d.value || 0) - 5);
+      store.updateDevice(this.id, { value: v });
+    } else if (d.type === 'ac') {
+      const v = Math.min(30, Math.max(16, (d.value || 16) - 1));
+      store.updateDevice(this.id, { value: v });
+    } else if (d.type === 'tv') {
+      const c = Math.min(99, Math.max(1, (d.channel || 1) - 1));
+      store.updateDevice(this.id, { channel: c });
+    }
+    this.refresh();
+  },
+  setMode(m) {
+    if (this.type === 'light') {
+      store.updateDevice(this.id, { mode: m.name, value: m.value, status: true });
+    } else if (this.type === 'ac') {
+      store.updateDevice(this.id, { mode: m.name, value: m.value, status: true });
+    } else if (this.type === 'purifier') {
+      store.updateDevice(this.id, { mode: m.name, value: m.value, status: true });
+    }
+    this.refresh();
+  },
+  setFan(f) {
+    store.updateDevice(this.id, { fan: f, status: true });
+    this.refresh();
+  },
+  chooseChannel(c) {
+    store.updateDevice(this.id, { channel: c.num, status: true });
+    this.refresh();
+  },
+  getLabel(t) {
+    if (t === 'light') return '亮度';
+    if (t === 'ac') return '温度';
+    if (t === 'purifier') return '强度';
+    if (t === 'tv') return '频道';
+    return '';
+  },
+  getDisplayValue(d) {
+    if (!d.status) return '关';
+    if (d.type === 'tv') return `${d.channel || 1}`;
+    if (d.type === 'ac') return `${d.value}℃`;
+    return `${d.value}%`;
+  },
+  getIcon(t) {
+    switch (t) {
+      case 'light': return '/common/icons/light.png';
+      case 'ac': return '/common/icons/ac.png';
+      case 'tv': return '/common/icons/tv.png';
+      case 'purifier': return '/common/icons/purifier.png';
+      default: return '/common/icons/light.png';
+    }
+  },
+  getStatusText(d) {
+    if (!d.status) return '已关闭';
+    if (d.type === 'light') return `亮度${d.value}%`;
+    if (d.type === 'ac') return `温度${d.value}℃`;
+    if (d.type === 'purifier') return `强度${d.value}%`;
+    if (d.type === 'tv') return `频道${d.channel || 1}`;
+    return d.status ? '已开启' : '已关闭';
+  },
+  goBack() {
+    router.back();
+  }
+};
+</script>
+
+<style>
+.page {
+  width: 100%;
+  height: 100%;
+  background-color: #ffffff;
+  padding: 16px;
+  padding-top: 20px;
+}
+.header {
+  width: 100%;
+  height: 48px;
+  justify-content: space-between;
+  align-items: center;
+  padding-left: 8px;
+  padding-right: 8px;
+  padding-top: 4px;
+}
+.content { flex: 1; width: 100%; }
+.li { width: 100%; height: auto; margin-top: 8px; }
+.back {
+  font-size: 18px;
+  color: #2563eb;
+}
+.title {
+  font-size: 22px;
+  color: #111827;
+}
+.main {
+  width: 100%;
+  height: 90px;
+  background-color: #f7f7f8;
+  border-radius: 16px;
+  align-items: center;
+  padding-left: 10px;
+}
+.icon {
+  width: 48px;
+  height: 48px;
+}
+.info {
+  flex: 1;
+  height: 90px;
+  padding-left: 8px;
+  justify-content: center;
+}
+.name {
+  font-size: 22px;
+  color: #111827;
+}
+.status {
+  font-size: 18px;
+  color: #6b7280;
+}
+.switch-row {
+  width: 100%;
+  height: 50px;
+  margin-top: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+.label {
+  font-size: 18px;
+  color: #6b7280;
+}
+.switch {
+  width: 72px;
+  height: 32px;
+  border-radius: 16px;
+  background-color: #e5e7eb;
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+.knob {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background-color: #22d3ee;
+  top: 2px;
+}
+.switch-l {
+  position: absolute;
+  left: 8px;
+  font-size: 14px;
+}
+.switch-r {
+  position: absolute;
+  right: 8px;
+  font-size: 14px;
+}
+.btn-text {
+  font-size: 20px;
+  color: #111827;
+}
+.control {
+  width: 100%;
+  height: 50px;
+  margin-top: 10px;
+  justify-content: space-between;
+  align-items: center;
+}
+.ops {
+  flex-direction: row;
+  align-items: center;
+}
+.btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  background-color: #e5e7eb;
+  justify-content: center;
+  align-items: center;
+}
+.val {
+  font-size: 18px;
+  color: #111827;
+  margin-left: 6px;
+  margin-right: 6px;
+}
+.section {
+  font-size: 18px;
+  color: #6b7280;
+  margin-top: 12px;
+}
+.chips {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.chip {
+  height: 30px;
+  padding-left: 12px;
+  padding-right: 12px;
+  border-radius: 15px;
+  background-color: #f0f1f2;
+  justify-content: center;
+  align-items: center;
+  margin-right: 8px;
+  margin-top: 8px;
+}
+.chip-text { font-size: 16px; }
+.grid {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.grid-item {
+  width: 46%;
+  height: 36px;
+  border-radius: 10px;
+  background-color: #f0f1f2;
+  justify-content: center;
+  align-items: center;
+  margin-right: 6px;
+  margin-top: 6px;
+}
+.grid-text { font-size: 16px; }
+</style>

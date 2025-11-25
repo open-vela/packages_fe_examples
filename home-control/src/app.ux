@@ -1,0 +1,10 @@
+<script>
+export default {
+  onCreate() {
+    console.log('home-control app created')
+  },
+  onDestroy() {
+    console.log('home-control app destroyed')
+  }
+}
+</script>
