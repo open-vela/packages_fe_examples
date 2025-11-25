@@ -1,0 +1,23 @@
+{
+  "name": "vela-home-control",
+  "version": "1.0.0",
+  "description": "Vela watch smart home control demo",
+  "engines": {
+    "node": ">=8.10"
+  },
+  "scripts": {
+    "start": "aiot server --watch",
+    "build": "aiot build",
+    "release": "aiot release",
+    "watch": "aiot watch",
+    "lint": "eslint --format codeframe --fix --ext .ux,.js src/"
+  },
+  "devDependencies": {
+    "@aiot-toolkit/velasim": "^0.1.26-beta.3",
+    "aiot-toolkit": "^2.0.5",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^6.8.0",
+    "eslint-plugin-ux": "^0.0.4",
+    "ux-types": "^0.1.1"
+  }
+}
