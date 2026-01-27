@@ -17,5 +17,5 @@
 
 ## 开发说明
 
-项目需要使用官方ide开发调试，请参考文档[官方文档](https://iot.mi.com/vela/quickapp/zh/guide/start/use-ide.html)
+项目需要使用官方ide开发调试，请参考文档[官方文档](https://iot.mi.com/vela/quickapp/zh/guide/start/use-ide.html)。
 
