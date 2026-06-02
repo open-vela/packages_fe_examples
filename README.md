@@ -4,6 +4,8 @@
 
 该仓库实现了 openvela app应用代码示例，开发者可以根据我们的文档和示例，快速上手开发。
 
+> 说明：本仓库的快应用在 **AIoT IDE 内置模拟器**中运行，仅供学习参考。**AI 硬件大赛中，快应用赛道的参赛代码请提交到 [packages_apps](../../../../open-vela/packages_apps) 仓库（在 openvela 模拟器上运行），不要提交到本仓库。**
+
 ## demo说明
 
 - [万年历](calendar)
